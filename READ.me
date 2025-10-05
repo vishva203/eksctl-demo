@@ -1,0 +1,19 @@
+Before the pipeline runs, make sure:
+
+Jenkins has the following plugins:
+
+1- AWS Credentials Plugin  , AWS Steps Plugin
+  manage jenkins--. plugin 
+2- Pipeline Plugin - Stage view plugin for piprline
+3- Git Plugin
+4- Kubernetes CLI Plugin (optional but helpful)
+5 - AWS credentials (Access Key + Secret Key) are configured in Jenkins:
+
+   Manage Jenkins → Credentials → AWS → Add
+   
+ 
+Jenkins agent (or master) has:
+
+1- aws CLI, eksctl, and kubectl installed
+
+2- A GitHub repo containing your YAML files (deployment.yaml, service.yaml, volume.yaml)
