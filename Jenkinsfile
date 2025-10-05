@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/vishva203/eksctl-k8s-demo.git'
+                git branch: 'main', url: 'https://github.com/vishva203/eksctl-demo.git'
             }
         }
 
