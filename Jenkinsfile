@@ -4,6 +4,8 @@ pipeline {
     environment {
         AWS_DEFAULT_REGION = "eu-west-2"
         CLUSTER_NAME = "demo-eks-cluster"
+        // This automatically sets AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
+        // if Jenkins credentials are configured as type "AWS Credentials"
         AWS_CREDS = credentials('aws-eks-creds')
     }
 
@@ -26,7 +28,7 @@ pipeline {
                             --name ${CLUSTER_NAME} \
                             --region ${AWS_DEFAULT_REGION} \
                             --nodes 2 \
-                            --node-type t3.medium \
+                            --node-type t3.small \
                             --managed
                     fi
                     '''
@@ -38,7 +40,9 @@ pipeline {
             steps {
                 withAWS(credentials: 'aws-eks-creds', region: "${AWS_DEFAULT_REGION}") {
                     sh '''
+                    echo "Updating kubeconfig..."
                     aws eks update-kubeconfig --region ${AWS_DEFAULT_REGION} --name ${CLUSTER_NAME}
+                    echo "Verifying cluster connectivity..."
                     kubectl get nodes
                     '''
                 }
@@ -48,6 +52,7 @@ pipeline {
         stage('Deploy to EKS') {
             steps {
                 sh '''
+                echo "Applying Kubernetes manifests..."
                 kubectl apply -f volume.yaml
                 kubectl apply -f deployment.yaml
                 kubectl apply -f service.yaml
