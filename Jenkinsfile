@@ -11,7 +11,7 @@ pipeline {
     stages {
         stage('Delete EKS Cluster') {
             steps {
-                withAWS(credentials: "${AWS_CREDS}", region: "${AWS_DEFAULT_REGION}") {
+                withAWS(credentials: 'aws-eks-creds', region: "${AWS_DEFAULT_REGION}") {
                     sh '''
                         eksctl delete cluster --name ${CLUSTER_NAME} --region ${AWS_DEFAULT_REGION}
                     '''
