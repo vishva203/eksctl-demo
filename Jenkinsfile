@@ -16,58 +16,15 @@ pipeline {
             }
         }
 
-        stage('Create EKS Cluster') {
+        stage('Delete EKS Cluster') {
             steps {
-                withAWS(credentials: 'aws-eks-creds', region: "${AWS_DEFAULT_REGION}") {
-                    sh '''
-                    if eksctl get cluster --name ${CLUSTER_NAME} >/dev/null 2>&1; then
-                        echo "EKS cluster ${CLUSTER_NAME} already exists."
-                    else
-                        echo "Creating EKS Cluster..."
-                        eksctl create cluster \
-                            --name ${CLUSTER_NAME} \
-                            --region ${AWS_DEFAULT_REGION} \
-                            --nodes 2 \
-                            --node-type t3.small \
-                            --managed
-                    fi
-                    '''
-                }
+                sh "eksctl delete cluster --name ${CLUSTER_NAME} --region ${AWS_DEFAULT_REGION}"
             }
         }
-
-        stage('Update kubeconfig') {
-            steps {
-                withAWS(credentials: 'aws-eks-creds', region: "${AWS_DEFAULT_REGION}") {
-                    sh '''
-                    echo "Updating kubeconfig..."
-                    aws eks update-kubeconfig --region ${AWS_DEFAULT_REGION} --name ${CLUSTER_NAME}
-                    echo "Verifying cluster connectivity..."
-                    kubectl get nodes
-                    '''
-                }
-            }
-        }
-
-        stage('Deploy to EKS') {
-            steps {
-                sh '''
-                echo "Applying Kubernetes manifests..."
-                kubectl apply -f volume.yaml
-                kubectl apply -f deployment.yaml
-                kubectl apply -f service.yaml
-
-                echo "Verifying Deployment..."
-                kubectl get pods -o wide
-                kubectl get svc
-                '''
-            }
-        }
-    }
 
     post {
         success {
-            echo "✅ EKS cluster created and application deployed successfully!"
+            echo "✅ EKS cluster deleted successfully!"
         }
         failure {
             echo "❌ Pipeline failed. Please check the logs."
